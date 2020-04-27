@@ -1,0 +1,41 @@
+import pandas as pd
+import requests
+import json
+import os
+
+def fetch_openapi_public(endpoint, operation, key_params):
+    target_url = endpoint + '/' + operation
+    response = requests.get(target_url, key_params)
+    result = response.json()
+    return result
+def add_key_params_public(key, params):
+    key = requests.utils.unquote(key)
+    key_params = {'ServiceKey': key}
+    key_params.update(params)
+    return key_params
+def trans_json_into_csv_public(json, path, filename):
+    json = pd.DataFrame.from_dict(json['response']['body']['items']['item'])
+    if os.path.exists(path) == True:
+        pass
+    else:
+        os.makedirs(path)
+    path_file = os.path.join(path, filename) + '.csv'
+    json.to_csv(path_file)
+
+def add_key_params_seoul(key, type, service, *args):
+    params = 'http://openAPI.seoul.go.kr:8088'
+    params = params + '/' + key
+    params = params + '/' + type
+    params = params + '/' + service
+    for i in args:
+        params = params + '/' + i
+    return params
+def trans_json_into_csv_seoul(json, path, filename):
+    idx = list(json.keys())[0]
+    json = pd.DataFrame.from_dict(json[idx]['row'])
+    if os.path.exists(path) == True:
+        pass
+    else:
+        os.makedirs(path)
+    path_file = os.path.join(path, filename) + '.csv'
+    json.to_csv(path_file)
